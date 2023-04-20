@@ -1,5 +1,5 @@
-# mygocode
-A monorepo container to hold any golang coding experiment.
+# gopkg
+A collection of random go packages and utilities developed as hobby project.
 
 # Start with gitpod.io - click this link
 https://gitpod.io#https://github.com/mkbblr/gopkg
@@ -19,4 +19,13 @@ go install ./... && euler && leetcode
 
 # build check
 go build ./...
+```
+
+or simplely use `make` as 
+
+```shell
+
+# clean, build, install, run, run to print build info
+make clean && make && make install && euler -show && euler
+
 ```
