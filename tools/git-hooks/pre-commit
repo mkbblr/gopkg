@@ -115,8 +115,7 @@ function check() {
     done
 }
 
-# check
-check_local_changes
+check
 
 
 
