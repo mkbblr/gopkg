@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+alias gl="git log --pretty=format:'%h>%an>%ah>%s' -20 | column -t -s '>'  2>>/dev/null" 
+echo "config.rc sourced"

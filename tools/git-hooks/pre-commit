@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+exec < /dev/tty
+
+COLOR_RED="\033[0;31m"
+COLOR_GREEN="\033[0;32m"
+COLOR_YELLOW="\033[1;33m"
+COLOR_NONE="\033[0m" # No Color
+
+
+
+MAX_FILE_SIZE=$(( 16 * 1024  )) ## file size limit for commit - 16KB
+## check file size arg1: file path, arg2: max size limit
+function check_file_size() {
+  file=$1
+  max_size=$2
+  __ln=( $( ls -Lon $file ) )
+  __size=${__ln[3]}
+  if [ $__size -gt $max_size ]; then
+    printf "\n$COLOR_RED hook/pre-commit: error: $file : size $__size is more then $max_size,  not allowed to commit XXX $COLOR_NONE"
+    exit 2;
+  fi
+  printf "\n$COLOR_GREEN hook/pre-commit:    ok: $file : size $__size is less then $max_size,  size check ok !!! $COLOR_NONE"
+}
+
+
+
+
+EXCLUDED_EXTENSIONS="pyc|zip|exe|sql|bak|log|csv" ## extension that are not allowed
+EXPECTED_EXTENSIONS="go|yml|yaml|mod|gitignore|Makefile"   ## extensions that are expected  
+## check file extension - is it allowed? is it expected?
+function check_file_ext() {
+  ext=$1
+  excludes=$2
+  expected=$3  
+
+
+  if [[ $ext =~ $excludes ]]; then
+    printf "\n$COLOR_RED hook/pre-commit: err: $file: extension $ext is found in exlude list : $excludes,  not allowed to commit XXX $COLOR_NONE"
+    exit 1;
+  fi
+
+  if [[ ! $ext =~ $expected ]]; then
+    printf "\n$COLOR_YELLOW $file: .$ext file is not expected. Do you really want to track this file in git version control ? (y/n): $COLOR_NONE"
+    read  yn 
+    if [[ $yn == "y" || $yn == "Y" ]]; then
+      echo "ok"
+      printf "\n$COLOR_RED However, if you plan to track this file and frequent changed expected in it, consider adding '$ext' to EXPECTED_EXTENSIONS in your pre-commit hook file as well $COLOR_NONE"
+    else
+      echo "Delete $file and try committing again."
+      exit 1;
+    fi
+  fi
+}
+
+
+function check_local_changes() {
+  status=$(git status --porcelain=v1 -b -uall | grep -v ^##)
+  old_ifs=$IFS
+  IFS=$'\n'
+  ask_confirmation=0
+  for line in $status; do
+    if test $(expr substr $line 1 1)  = "?"; then
+      printf "\n$COLOR_RED  ${line:3}: untracked $COLOR_NONE\n"
+      ask_confirmation=1
+    fi
+    if test $(expr substr $line 2 1)  = "M"; then
+      printf "\n$COLOR_RED  ${line:3}: modified $COLOR_NONE\n"
+      ask_confirmation=1
+    fi
+    if test $(expr substr $line 2 1)  = "D"; then
+      printf "\n$COLOR_RED  ${line:3}: deleted $COLOR_NONE\n"
+      ask_confirmation=1
+    fi
+  done
+  IFS=$old_ifs
+
+  if test $ask_confirmation -ne 0; then
+    printf "\n$COLOR_YELLOW The above files are not added for commit. $COLOR_NONE"
+    printf "\n$COLOR_YELLOW Commit anyway? (y)/ Abort? (n): $COLOR_NONE"
+    read  yn 
+    if [[ $yn == "y" || $yn == "Y" ]]; then
+      echo "ok"
+    else
+      printf "\n$COLOR_NONE 1. Use 'git status' command to check and review your unstaged changes."
+      printf "\n$COLOR_NONE 2. Use 'git add' command to add the required files to staging area."
+      printf "\n$COLOR_NONE 3. Use 'git commit' command to finally commit the final changes.\n"
+      exit 1;
+    fi
+  fi
+}
+
+
+## basic per commit checks
+function check() {
+    check_local_changes
+
+    files=`git diff --cached --diff-filter=d  --name-only ./`
+    if test $? -ne 0; then
+    echo "**** ERROR in pre-commit check ***"
+    exit 1
+    fi
+
+    for file in $files; do
+        __filename=$(basename $file)
+        __extension="${__filename##*.}"
+
+        ## check if file type is allowed (based on extension)
+        check_file_ext $__extension $EXCLUDED_EXTENSIONS $EXPECTED_EXTENSIONS 
+
+        ## size check - check if the file size is within expected limit
+        check_file_size $file $MAX_FILE_SIZE
+
+        printf "\n$COLOR_GREEN pre-commit check ok for file $file $COLOR_NONE"
+        echo .
+    done
+}
+
+# check
+check_local_changes
+
+
+

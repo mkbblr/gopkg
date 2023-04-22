@@ -6,6 +6,6 @@
 
 tasks:
   - init: git config --global user.email "mkbblr@users.noreply.github.com"
-    command: go build ./...
+    command: . tools/config.rc
 
 
