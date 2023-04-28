@@ -18,3 +18,7 @@
 
 # go.sum file ignored as of now
 go.sum
+
+# the build artifact folder
+bin/
+**/docs/

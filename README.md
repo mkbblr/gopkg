@@ -1,11 +1,9 @@
-# gopkg
-A collection of random go packages and utilities developed as hobby project.
+# gopkg   
+<sub>A collection of random go packages and utilities developed as hobby project. Launch `Gitpod.io` [Workspace](https://gitpod.io#https://github.com/mkbblr/gopkg) to check it out.</sub>
 
-# Start with gitpod.io - click this link
-https://gitpod.io#https://github.com/mkbblr/gopkg
+---
 
-
-# Working 
+#### Working
 
 ```shell
 # run the coding challenges from project euler

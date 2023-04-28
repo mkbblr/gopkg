@@ -4,7 +4,7 @@ import (
     "fmt"
     "os"
     "flag"
-    "testing"
+    //"testing"
     "github.com/mkbblr/gopkg/pkg/xbi"
 )
 
@@ -16,12 +16,14 @@ import (
 //var buildUser string = `%X_BI_KEY_BUILD_USER%`
 
 var xbiKV string = `%X_BI_KEY_KV_PAIR%`
-
-
 var _bi *xbi.XBI 
 
+var _flagShow bool
+var _flagJson bool
+var _flagFull bool
+var _flagOneline bool
+
 func init()  {
-	//fmt.Println("main.init called, build information: ")
 	_bi := xbi.NewBuildInfo(
 		//xbi.WithItem(gitOrigin),
 		//xbi.WithItem(gitStatus),
@@ -31,29 +33,25 @@ func init()  {
 		//xbi.WithItem(buildUser),
 		xbi.WithItem(xbiKV),
 		)
-	testing.Init()
-	//fmt.Println(_bi.Oneliner())
 
-	show := flag.Bool("show", false, "show json build information")
-	jsonbi := flag.Bool("jsonbi", false, "show json build information")
-	fullbi := flag.Bool("fullbi", false, "show full build information")
-	onelinebi := flag.Bool("onelinebi", false, "show oneliner build information")
+	flag.BoolVar(&_flagShow, "show", false, "show json build information")
+	flag.BoolVar(&_flagJson, "jsonbi", false, "show json build information")
+	flag.BoolVar(&_flagFull, "fullbi", false, "show full build information")
+	flag.BoolVar(&_flagOneline, "onelinebi", false, "show oneliner build information")
 
-	flag.Parse()
+	if len(os.Args) > 1 {
+		switch  {
+		case os.Args[1] == "-show" || os.Args[1] == "-json":
+			fmt.Print(_bi.Json())
+			os.Exit(0)
 
-	if *fullbi {
-        fmt.Print(_bi.Text())
-		os.Exit(0)
+		case os.Args[1] == "-fullbi":
+			fmt.Print(_bi.Text())
+			os.Exit(0)
+
+		case os.Args[1] == "-onelinebi":
+			fmt.Print(_bi.Text())
+			os.Exit(0)
+		}
 	}
-
-	if *jsonbi || *show {
-        fmt.Print(_bi.Json())
-		os.Exit(0)
-	}
-
-	if *onelinebi {
-		fmt.Println(_bi.Oneliner())
-		os.Exit(0)
-	}
-
 }
