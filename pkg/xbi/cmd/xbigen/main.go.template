@@ -4,16 +4,9 @@ import (
     "fmt"
     "os"
     "flag"
-    //"testing"
     "github.com/mkbblr/gopkg/pkg/xbi"
 )
 
-//var gitStatus string = `%X_BI_KEY_GIT_STATUS%`
-//var gitOrigin string = `%X_BI_KEY_GIT_ORIGIN%`
-//var buildPath string = `%X_BI_KEY_BUILD_PATH%`
-//var buildTime string = `%X_BI_KEY_BUILD_TIME%`
-//var buildHost string = `%X_BI_KEY_BUILD_HOST%`
-//var buildUser string = `%X_BI_KEY_BUILD_USER%`
 
 var xbiKV string = `%X_BI_KEY_KV_PAIR%`
 var _bi *xbi.XBI 
@@ -26,6 +19,12 @@ var (
 )
 
 func customFlagParse() {
+
+	// flag.Parse() should not be called in init() function 
+	// so, we write these few custom lines to identify a few 
+	// cli options that is of interest to us within the scope
+	// of init()
+
 	for _, arg := range os.Args {
 		switch  {
 		case arg == "-bi":
