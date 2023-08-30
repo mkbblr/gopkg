@@ -18,40 +18,54 @@ import (
 var xbiKV string = `%X_BI_KEY_KV_PAIR%`
 var _bi *xbi.XBI 
 
-var _flagShow bool
-var _flagJson bool
-var _flagFull bool
-var _flagOneline bool
+var (
+	_flagBi bool
+	_flagJson bool
+	_flagText bool
+	_flagOneline bool
+)
+
+func customFlagParse() {
+	for _, arg := range os.Args {
+		switch  {
+		case arg == "-bi":
+			_flagBi = true
+		case arg == "-json":
+			_flagJson = true
+		case arg == "-text":
+			_flagText = true
+		case arg == "-oneline":
+			_flagOneline = true
+		}		
+	}
+}
+
 
 func init()  {
 	_bi := xbi.NewBuildInfo(
-		//xbi.WithItem(gitOrigin),
-		//xbi.WithItem(gitStatus),
-		//xbi.WithItem(buildTime),
-		//xbi.WithItem(buildPath),
-		//xbi.WithItem(buildHost),
-		//xbi.WithItem(buildUser),
 		xbi.WithItem(xbiKV),
 		)
 
-	flag.BoolVar(&_flagShow, "show", false, "show json build information")
-	flag.BoolVar(&_flagJson, "jsonbi", false, "show json build information")
-	flag.BoolVar(&_flagFull, "fullbi", false, "show full build information")
-	flag.BoolVar(&_flagOneline, "onelinebi", false, "show oneliner build information")
+	flag.BoolVar(&_flagBi, "bi", false, "Print build information")
+	flag.BoolVar(&_flagJson, "json", false, "Print build information in json format")
+	flag.BoolVar(&_flagText, "text", false, " use tex format")
+	flag.BoolVar(&_flagOneline, "onelinebi", false, "Print a minimal online build information")
 
-	if len(os.Args) > 1 {
-		switch  {
-		case os.Args[1] == "-show" || os.Args[1] == "-json":
-			fmt.Print(_bi.Json())
-			os.Exit(0)
 
-		case os.Args[1] == "-fullbi":
-			fmt.Print(_bi.Text())
-			os.Exit(0)
+	customFlagParse()
+	if _flagBi == true {
 
-		case os.Args[1] == "-onelinebi":
-			fmt.Print(_bi.Text())
-			os.Exit(0)
+		switch {
+			case _flagJson == true:
+				fmt.Print(_bi.Json())
+			case _flagOneline == true:
+				fmt.Print(_bi.Oneliner())
+			default:
+				fmt.Print(_bi.Text())	
 		}
+		os.Exit(0)
 	}
+
+
+	
 }

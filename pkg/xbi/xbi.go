@@ -4,6 +4,7 @@ package xbi
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"runtime/debug"
 	"strings"
 )
@@ -100,7 +101,30 @@ func WithItem(x string) func(*XBI) {
 
 // Returns a oneliner build information
 func (bi *XBI) Oneliner() string {
-	return ""
+	ret := fmt.Sprintf("%s| %s| ", bi.B.GoVersion, bi.B.Path)
+
+	for _, s := range bi.B.Settings {
+		if s.Key == "vcs.revision" {
+			ret += fmt.Sprintf("rev: %s| ", s.Value)
+		}
+		if s.Key == "vcs.modified" {
+			ret += fmt.Sprintf("dirty: %s| ", s.Value)
+		}
+	}
+
+	for k, v := range bi.X {
+		if k == X_BI_KEY_BUILD_HOST {
+			ret += fmt.Sprintf("host: %s| ", v)
+		}
+		// if k == X_BI_KEY_BUILD_USER {
+		// 	ret += fmt.Sprintf("usr: %s| ", v)
+		// }
+		if k == X_BI_KEY_BUILD_TIME {
+			ret += fmt.Sprintf("ts: %s| ", v)
+		}
+	}
+
+	return ret
 }
 
 // Returns a text representation of full build information
