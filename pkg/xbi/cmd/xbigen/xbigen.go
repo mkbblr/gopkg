@@ -33,7 +33,7 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"os/user"
@@ -106,7 +106,7 @@ func runCommand(name string, arg ...string) (stdout []byte, err error) {
 	reader := bufio.NewReader(o)
 
 	go func() {
-		data, err := ioutil.ReadAll(reader)
+		data, err := io.ReadAll(reader)
 		if err != nil {
 			ech <- err
 		} else {
@@ -146,7 +146,7 @@ func generateCode(ext map[string]string) {
 	k := xbi.X_BI_KEY_KV_PAIR
 	fileContent = strings.Replace(fileContent, "%"+k+"%", k+":"+xbiKV, -1)
 
-	err := ioutil.WriteFile("main_generated.go", []byte(fileContent), 0644)
+	err := os.WriteFile("main_generated.go", []byte(fileContent), 0644)
 	if err != nil {
 		fmt.Println("failed to generate file, ", err)
 		os.Exit(1)

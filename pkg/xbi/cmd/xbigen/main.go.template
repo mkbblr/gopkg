@@ -9,7 +9,7 @@ import (
 
 
 var xbiKV string = `%X_BI_KEY_KV_PAIR%`
-var _bi *xbi.XBI 
+var _bi xbi.XBI 
 
 var (
 	_flagBi bool
@@ -41,7 +41,7 @@ func customFlagParse() {
 
 
 func init()  {
-	_bi := xbi.NewBuildInfo(
+	_bi = xbi.NewBuildInfo(
 		xbi.WithItem(xbiKV),
 		)
 
